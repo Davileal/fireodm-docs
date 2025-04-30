@@ -6,7 +6,7 @@ import type * as Preset from '@docusaurus/preset-classic';
 
 const config: Config = {
   title: 'fireodm',
-  tagline: 'Dinosaurs are cool',
+  tagline: 'Type-safe Firestore ORM for Node.js – decorators, Zod validation & effortless relations',
   favicon: 'img/favicon.ico',
 
   // Set the production url of your site here
@@ -51,7 +51,10 @@ const config: Config = {
 
   themeConfig: {
     // Replace with your project's social card
-    image: 'img/docusaurus-social-card.jpg',
+    image: 'img/logo.jpg',
+    metadata: [
+      {name: 'keywords', content: 'fireodm, firestore, firebase, nodejs, odm, orm, zod'},
+    ],
     navbar: {
       title: 'fireodm',
       items: [
