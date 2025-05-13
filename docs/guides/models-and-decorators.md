@@ -108,7 +108,81 @@ or later:
 await emp.populate(['department'])
 ```
 
-## 4. Putting It All Together
+## 4. Sub-Collections
+
+FireODM also supports organizing related data in Firestore sub-collections using two decorators:
+
+### 4.1. `@SubcollectionModel(path)`
+
+Annotate a class to indicate it represents documents in a sub-collection under a parent document:
+
+```typescript
+import { BaseModel, SubcollectionModel } from 'fireodm'
+
+@SubcollectionModel('children')
+export class ChildModel extends BaseModel {
+  @StringField()
+  name!: string
+
+  @NumberField()
+  age!: number
+}
+```
+
+The path argument (`'children'`) specifies the sub-collection name under its parent collection.
+
+### 4.2 `@Subcollection()`
+
+On your parent model, declare a property to hold sub-collection items and decorate it:
+
+```typescript
+import { Subcollection } from 'fireodm'
+
+export class ParentModel extends BaseModel {
+  @StringField()
+  title!: string
+
+  @Subcollection(() => ChildModel, 'children')
+  children?: ChildModel[]
+}
+```
+
+`@Subcollection()` registers metadata so FireODM knows to load children from `/parents/{id}/children`.
+
+### 4.3. Eager Loading with `populateSub`
+
+Pass populateSub to findById or findAll to load sub-collections automatically:
+
+```typescript
+// findById example
+const parent = await ParentModel.findById('docId', {
+  populateSub: ['children'],
+});
+console.log(parent.children); // ChildModel[]
+
+// findAll example
+const { results } = await ParentModel.findAll({
+  limit: 10,
+  populateSub: ['children'],
+});
+results.forEach(p => console.log(p.children));
+```
+
+`populateSub` takes an array of sub-collection property names to eagerly load.
+
+### 4.4. Manual Loading with `subcollection()`
+
+Use the instance method `subcollection()` to fetch sub-collection data on demand:
+
+```typescript
+const parent = await ParentModel.findById('docId')
+
+// Load 'children' when needed:
+const kids = await parent.subcollection('children')
+console.log(kids); // ChildModel[]
+```
+
+## 5. Putting It All Together
 
 Here is a complete `User` example:
 
@@ -132,12 +206,25 @@ export class User extends BaseModel {
     @Relation(() => Department)
     department?: DocumentReference | Department | null
 
+    @SubCollection(() => Role, "roles")
+    roles?: Role[];
+
     constructor(data: Partial<User>, id?: string) {
     super(data, id)
     }
 }
+
+@SubcollectionModel('roles')
+export class Role extends BaseModel {
+  @StringField()
+  name!: string
+
+  @StringField()
+  description!: number
+}
+
 ```
 
-## 5. Next
+## 6. Next
 
 Continue to **Validation** to learn more about Zod schemas and error handling in FireODM.
