@@ -112,14 +112,14 @@ await emp.populate(['department'])
 
 FireODM also supports organizing related data in Firestore sub-collections using two decorators:
 
-### 4.1. `@SubcollectionModel(path)`
+### 4.1. `@SubcollectionModel(() => ParentModel, path)`
 
 Annotate a class to indicate it represents documents in a sub-collection under a parent document:
 
 ```typescript
 import { BaseModel, SubcollectionModel } from 'fireodm'
 
-@SubcollectionModel('children')
+@SubcollectionModel(() => Parent, 'children')
 export class ChildModel extends BaseModel {
   @StringField()
   name!: string
@@ -214,7 +214,7 @@ export class User extends BaseModel {
     }
 }
 
-@SubcollectionModel('roles')
+@SubcollectionModel(() => User, 'roles')
 export class Role extends BaseModel {
   @StringField()
   name!: string
